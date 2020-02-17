@@ -35,7 +35,7 @@ module.exports = {
     'camelcase': [0, {
       'properties': 'always'
     }],
-    'comma-dangle': ['error', 'always'],
+    'comma-dangle': ['error', 'never'],
     'comma-spacing': [2, {
       'before': false,
       'after': true
