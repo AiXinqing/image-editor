@@ -2,8 +2,14 @@
   <div class="image-editor">
     <div class="image-editor--top">
       <div class="image-editor__scroll">
-        <div class="image-editor__wrappper">
-          <img :src="value">
+        <div
+          ref="editorBox"
+          class="image-editor__wrappper"
+        >
+          <img
+            ref="imageRef"
+            :src="value"
+          >
           <Previewer
             :pre-shape="preShape"
             :shapes="historyShapes"
@@ -29,7 +35,9 @@
           <span>{{ shape }}</span>
         </label>
       </div>
-      <div class="size-controls__container" />
+      <div class="size-controls__container">
+        <button @click="save">保存</button>
+      </div>
       <div class="color-controls__container">
         <label
           v-for="item in allowedColors"
@@ -109,8 +117,20 @@ export default {
 
   methods: {
     save() {
-      const imgurl = this.value
+      const canvas = document.createElement('canvas')
+      const { width, height } = this.$refs.editorBox.getBoundingClientRect()
+      canvas.setAttribute('width', width)
+      canvas.setAttribute('height', height)
+      this.$el.appendChild(canvas)
+
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(this.$refs.imageRef, 0, 0, width, height)
+      // 绘制形状到canvas
+      ctx.strokeRect(10, 10, 300, 200)
+
+      const imgurl = canvas.toDataURL('image/png')
       this.$emit('input', imgurl)
+      this.$el.removeChild(canvas)
     },
 
     handleMoveFunc({ start, current }) {
@@ -205,6 +225,11 @@ export default {
     &__wrappper {
       display: inline-flex;
       position: relative;
+    }
+
+    canvas {
+      visibility: hidden;
+      position: absolute;
     }
 
     img {
