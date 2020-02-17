@@ -15,7 +15,20 @@
       <div class="image-editor__controls--right">右侧控件</div>
     </div>
     <div class="image-editor__controls image-editor--bottom">
-      <div class="shape-controls__container" />
+      <div class="shape-controls__container">
+        <label
+          v-for="shape in allowedShapes"
+          :key="shape"
+        >
+          <input
+            v-model="shapeType"
+            :value="shape"
+            type="radio"
+            name="shapeType"
+          >
+          <span>{{ shape }}</span>
+        </label>
+      </div>
       <div class="size-controls__container" />
       <div class="color-controls__container" />
     </div>
@@ -24,6 +37,8 @@
 
 <script>
 import Previewer from './_previewer'
+
+const SHAPES = ['check', 'times', 'text', 'polyline', 'arrow', 'rect', 'ellipse']
 
 export default {
   name: 'ImageEditor',
@@ -41,6 +56,7 @@ export default {
 
   data() {
     return {
+      allowedShapes: SHAPES,
       shapeType: 'rect',
       lineSize: 2,
       fontSize: 14,
@@ -94,11 +110,15 @@ export default {
     },
 
     addPreShape(p1, p2) {
-      this.preShape = {
+      this.preShape = this.preShape || {
         type: this.type,
         id: 'preShape',
         params: {},
-        style: {}
+        style: {
+          fill: 'transparent',
+          stroke: this.color,
+          'stroke-width': this.size
+        }
       }
       switch (this.shapeType) {
         case 'rect':
@@ -108,10 +128,24 @@ export default {
             width: Math.abs(p1[0] - p2[0]),
             height: Math.abs(p1[1] - p2[1])
           }
-          this.preShape.style = {
-            fill: 'transparent',
-            stroke: this.color,
-            'stroke-width': this.lineSize
+          break
+        case 'ellipse':
+          this.preShape.params = {
+            cx: (p1[0] + p2[0]) / 2,
+            cy: (p1[1] + p2[1]) / 2,
+            rx: Math.abs(p1[0] - p2[0]) / 2,
+            ry: Math.abs(p1[1] - p2[1]) / 2
+          }
+          break
+        case 'polyline':
+          if (this.preShape.params.points) {
+            this.preShape.params = {
+              points: [...this.preShape.params.points, p2]
+            }
+          } else {
+            this.preShape.params = {
+              points: [p1, p2]
+            }
           }
           break
       }
