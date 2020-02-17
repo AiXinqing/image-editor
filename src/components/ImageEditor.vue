@@ -7,6 +7,8 @@
           <Previewer
             :pre-shape="preShape"
             :shapes="historyShapes"
+            @drag-move="handleMoveFunc"
+            @drag-end="handleEndFunc"
           />
         </div>
       </div>
@@ -37,19 +39,9 @@ export default {
 
   data() {
     return {
+      shapeType: 'rect',
       preShape: null,
-      historyShapes: [
-        {
-          type: 'rect',
-          id: Date.now(),
-          params: {
-            x: 10,
-            y: 10,
-            width: 160,
-            height: 120
-          }
-        }
-      ],
+      historyShapes: [],
       recoverShapes: []
     }
   },
@@ -58,6 +50,34 @@ export default {
     save() {
       const imgurl = this.value
       this.$emit('input', imgurl)
+    },
+
+    handleMoveFunc({ start, current }) {
+      this.addPreShape(start, current)
+    },
+
+    handleEndFunc({ start, current }) {
+      this.addPreShape(start, current)
+      const shape = {
+        ...this.preShape,
+        id: `shape-${Date.now()}`
+      }
+      this.preShape = null
+      this.historyShapes.push(shape)
+    },
+
+    addPreShape(p1, p2) {
+      this.preShape = {
+        type: this.shapeType,
+        id: 'preShape',
+        params: {
+          x: Math.min(p1[0], p2[0]),
+          y: Math.min(p1[1], p2[1]),
+          width: Math.abs(p1[0] - p2[0]),
+          height: Math.abs(p1[1] - p2[1])
+        },
+        style: {}
+      }
     }
   }
 }
