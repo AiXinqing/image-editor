@@ -15,7 +15,9 @@
       <div class="image-editor__controls--right">右侧控件</div>
     </div>
     <div class="image-editor__controls image-editor--bottom">
-      底部控件
+      <div class="shape-controls__container" />
+      <div class="size-controls__container" />
+      <div class="color-controls__container" />
     </div>
   </div>
 </template>
@@ -40,9 +42,34 @@ export default {
   data() {
     return {
       shapeType: 'rect',
+      lineSize: 2,
+      fontSize: 14,
+      color: 'red',
       preShape: null,
       historyShapes: [],
       recoverShapes: []
+    }
+  },
+
+  computed: {
+    size() {
+      switch (this.shapeType) {
+        case 'text':
+          return this.fontSize
+        default:
+          return this.lineSize
+      }
+    },
+
+    type() {
+      switch (this.shapeType) {
+        case 'check':
+        case 'times':
+        case 'arrow':
+          return 'polyline'
+        default:
+          return this.shapeType
+      }
     }
   },
 
@@ -68,7 +95,7 @@ export default {
 
     addPreShape(p1, p2) {
       this.preShape = {
-        type: this.shapeType,
+        type: this.type,
         id: 'preShape',
         params: {},
         style: {}
@@ -83,8 +110,8 @@ export default {
           }
           this.preShape.style = {
             fill: 'transparent',
-            stroke: 'red',
-            'stroke-width': 2
+            stroke: this.color,
+            'stroke-width': this.lineSize
           }
           break
       }
