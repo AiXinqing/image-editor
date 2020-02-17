@@ -70,13 +70,23 @@ export default {
       this.preShape = {
         type: this.shapeType,
         id: 'preShape',
-        params: {
-          x: Math.min(p1[0], p2[0]),
-          y: Math.min(p1[1], p2[1]),
-          width: Math.abs(p1[0] - p2[0]),
-          height: Math.abs(p1[1] - p2[1])
-        },
+        params: {},
         style: {}
+      }
+      switch (this.shapeType) {
+        case 'rect':
+          this.preShape.params = {
+            x: Math.min(p1[0], p2[0]),
+            y: Math.min(p1[1], p2[1]),
+            width: Math.abs(p1[0] - p2[0]),
+            height: Math.abs(p1[1] - p2[1])
+          }
+          this.preShape.style = {
+            fill: 'transparent',
+            stroke: 'red',
+            'stroke-width': 2
+          }
+          break
       }
     }
   }

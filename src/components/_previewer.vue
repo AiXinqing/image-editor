@@ -58,22 +58,25 @@ export default {
 
   methods: {
     handleMousedown(event) {
-      this.startPoint = [event.offsetX, event.offsetY]
+      const { top, left } = this.$el.getBoundingClientRect()
+      this.startPoint = [event.clientX - left, event.clientY - top]
       this.bindMousemove()
       this.bindMouseup()
     },
 
     handleMousemove(event) {
+      const { top, left } = this.$el.getBoundingClientRect()
       this.$emit('drag-move', {
         start: this.startPoint,
-        current: [event.offsetX, event.offsetY]
+        current: [event.clientX - left, event.clientY - top]
       })
     },
 
     handleMouseup(event) {
+      const { top, left } = this.$el.getBoundingClientRect()
       this.$emit('drag-end', {
         start: this.startPoint,
-        current: [event.offsetX, event.offsetY]
+        current: [event.clientX - left, event.clientY - top]
       })
       this.unbindEvents()
     },
