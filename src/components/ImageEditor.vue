@@ -30,7 +30,23 @@
         </label>
       </div>
       <div class="size-controls__container" />
-      <div class="color-controls__container" />
+      <div class="color-controls__container">
+        <label
+          v-for="item in allowedColors"
+          :key="item"
+        >
+          <input
+            v-model="color"
+            :value="item"
+            type="radio"
+            name="colorType"
+          >
+          <span
+            class="color-item"
+            :style="{ background: item }"
+          />
+        </label>
+      </div>
     </div>
   </div>
 </template>
@@ -39,6 +55,7 @@
 import Previewer from './_previewer'
 
 const SHAPES = ['check', 'times', 'text', 'polyline', 'arrow', 'rect', 'ellipse']
+const COLORS = ['red', 'blue', 'green', 'gray', 'white', 'black', 'purple', 'pink']
 
 export default {
   name: 'ImageEditor',
@@ -57,6 +74,7 @@ export default {
   data() {
     return {
       allowedShapes: SHAPES,
+      allowedColors: COLORS,
       shapeType: 'rect',
       lineSize: 2,
       fontSize: 14,
@@ -192,6 +210,12 @@ export default {
     img {
       display: block;
       width: 100%;
+    }
+
+    .color-item {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
     }
   }
 </style>
