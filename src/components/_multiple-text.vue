@@ -2,10 +2,10 @@
   <g>
     <text
       v-for="(text, index) in texts"
-      v-on="$attrs"
       :key="index"
       :x="text.x"
       :y="text.y"
+      v-on="$attrs"
     >
       {{ text.content }}
     </text>
