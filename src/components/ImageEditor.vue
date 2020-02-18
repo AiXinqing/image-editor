@@ -43,7 +43,10 @@
         @action-fired="handleAction"
       />
     </div>
-    <bottom-controls v-model="states" />
+    <bottom-controls
+      v-model="states"
+      @save-image="save"
+    />
   </div>
 </template>
 
@@ -51,6 +54,7 @@
 import Previewer from './_previewer'
 import bottomControls from './_bottom-controls'
 import rightControls from './_right-controls'
+import canvasRender from './_canvas-render'
 
 const TIMES_SIZE = 10
 const ARROW_SIZE = 5
@@ -139,20 +143,16 @@ export default {
 
   methods: {
     save () {
-      const canvas = document.createElement('canvas')
-      const { width, height } = this.$refs.editorBox.getBoundingClientRect()
-      canvas.setAttribute('width', width)
-      canvas.setAttribute('height', height)
-      this.$el.appendChild(canvas)
+      const [width, height] = this.imageSize
+      const imageData = canvasRender(
+        this.historyShapes,
+        this.$refs.imageRef,
+        width,
+        height,
+        this.$el
+      )
 
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(this.$refs.imageRef, 0, 0, width, height)
-      // 绘制形状到canvas
-      ctx.strokeRect(10, 10, 300, 200)
-
-      const imgurl = canvas.toDataURL('image/png')
-      this.$emit('input', imgurl)
-      this.$el.removeChild(canvas)
+      this.$emit('input', imageData)
     },
 
     handleImageLoad () {
@@ -413,7 +413,7 @@ export default {
     }
 
     canvas {
-      visibility: hidden;
+      visibility: visible;
       position: absolute;
     }
 

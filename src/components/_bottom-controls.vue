@@ -11,7 +11,12 @@
         }"
         @click="updateShape(shape)"
       />
-      <div class="shape-item save-btn">保存</div>
+      <div
+        class="shape-item save-btn"
+        @click="handleSave"
+      >
+        保存
+      </div>
     </div>
     <div class="size-controls__container">
       <div
@@ -78,14 +83,14 @@ export default {
     value: {
       type: Object,
       required: true,
-      validator(val) {
+      validator (val) {
         return val.color &&
           val.shapeType &&
           val.size
       }
     }
   },
-  data() {
+  data () {
     return {
       allowedShapes: SHAPES,
       allowedSizes: SIZES,
@@ -97,11 +102,11 @@ export default {
   },
 
   computed: {
-    isFontSize() {
+    isFontSize () {
       return this.shapeType === 'text'
     },
 
-    sizes() {
+    sizes () {
       if (this.isFontSize) {
         return this.allowedSizes.map(size => FONT_BASE + size)
       }
@@ -110,14 +115,14 @@ export default {
   },
 
   watch: {
-    shapeType(old, type) {
+    shapeType (old, type) {
       if ((old === 'text') || (type === 'text')) {
         this.size = this.size % FONT_BASE + (this.isFontSize ? FONT_BASE : 0)
       }
     }
   },
 
-  created() {
+  created () {
     this.$watch(() => {
       return this.shapeType + this.color + this.size
     }, () => {
@@ -130,16 +135,20 @@ export default {
   },
 
   methods: {
-    updateShape(type) {
+    updateShape (type) {
       this.shapeType = type
     },
 
-    updateSize(size) {
+    updateSize (size) {
       this.size = size
     },
 
-    updateColor(color) {
+    updateColor (color) {
       this.color = color
+    },
+
+    handleSave () {
+      this.$emit('save-image')
     }
   }
 }
