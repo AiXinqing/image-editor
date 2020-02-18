@@ -28,7 +28,7 @@
 
 <script>
 import Previewer from './_previewer'
-import bottomControls from './bottomEditorControls'
+import bottomControls from './_bottom-controls'
 
 const TIMES_SIZE = 10
 const ARROW_SIZE = 5
