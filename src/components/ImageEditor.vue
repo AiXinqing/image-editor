@@ -22,7 +22,8 @@
             :style="{
               top: textState.pos[1] + 'px',
               left: textState.pos[0] + 'px',
-              'font-size': size + 'px'
+              'font-size': size + 'px',
+              color: color
             }"
             class="text-input"
             contenteditable
@@ -46,6 +47,7 @@ import rightControls from './_right-controls'
 
 const TIMES_SIZE = 10
 const ARROW_SIZE = 5
+const LINE_HEIGHT = 20
 
 export default {
   name: 'ImageEditor',
@@ -186,9 +188,30 @@ export default {
     handleEndInputFunc() {
       const space_reg = /<div>|<\/div><div>|<\/div>/
       const words = this.textState.content.split(space_reg)
-      words
-        .filter(item => item.trim())
-        .map(item => item === '<br>' ? '' : item)
+      const [x, y] = this.textState.pos
+      const shape = {
+        id: `shape-${Date.now()}`,
+        type: 'multiple-text',
+        params: {
+          texts: words
+            .filter(item => item.trim())
+            .reduce((acc, item, index) => {
+              if (item !== '<br>') {
+                acc.push({
+                  content: item,
+                  x: 5 + x,
+                  y: y + index * LINE_HEIGHT + 20
+                })
+              }
+              return acc
+            }, [])
+        },
+        style: {
+          'font-size': this.size,
+          fill: this.color
+        }
+      }
+      this.historyShapes.push(shape)
       this.textState.pos = null
       setTimeout(() => {
         this.textState.content = ''

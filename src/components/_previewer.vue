@@ -17,7 +17,13 @@
 </template>
 
 <script>
+import MultipleText from './_multiple-text'
+
 export default {
+  components: {
+    'multiple-text': MultipleText
+  },
+
   props: {
     preShape: {
       type: Object,
