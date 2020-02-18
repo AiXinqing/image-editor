@@ -29,7 +29,7 @@
             :style="{
               top: textState.pos[1] + 'px',
               left: textState.pos[0] + 'px',
-              'font-size': size + 'px',
+              'font-size': size * scale + 'px',
               color: color
             }"
             class="text-input"
@@ -203,7 +203,7 @@ export default {
 
     showInputBox (point) {
       const [x, y] = point
-      this.textState.pos = [x - 5, y - 15]
+      this.textState.pos = [x * this.scale - 5, y * this.scale - 15]
       this.$nextTick(() => {
         this.$refs.textInputRef.focus()
       })
@@ -232,8 +232,8 @@ export default {
               if (item !== '<br>') {
                 acc.push({
                   content: item,
-                  x: 5 + x,
-                  y: y + index * LINE_HEIGHT + 20
+                  x: (x + 5) / this.scale,
+                  y: (y + index * LINE_HEIGHT + 20) / this.scale
                 })
               }
               return acc
@@ -335,21 +335,6 @@ export default {
             stroke: this.color,
             'stroke-width': this.size,
             'stroke-linejoin': 'round'
-          }
-          break
-        case 'text': // 文字
-          this.preShape.params = {
-            x: p1[0],
-            y: p1[1],
-            width: '200px',
-            height: '50%',
-            fill: this.color
-          }
-          this.preShape.text = this.text_drawing
-          this.preShape.style = {
-            size: this.size,
-            color: this.color,
-            'font-family': 'auto'
           }
           break
       }
