@@ -143,16 +143,22 @@ export default {
 
   methods: {
     save () {
+      this.getImageData().then((url) => {
+        this.$emit('input', url)
+      }).catch((err) => {
+        this.$emit('save-fail', err)
+      })
+    },
+
+    getImageData () {
       const [width, height] = this.imageSize
-      const imageData = canvasRender(
+      return canvasRender(
         this.historyShapes,
         this.$refs.imageRef,
         width,
         height,
         this.$el
       )
-
-      this.$emit('input', imageData)
     },
 
     handleImageLoad () {

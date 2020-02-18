@@ -31,6 +31,15 @@ function renderPolyline (shape, ctx) {
   ctx.lineJoin = 'miter'
 }
 
+function renderText (shape, ctx) {
+  const { texts } = shape.params
+  ctx.font = `${shape.style['font-size']}px Yahei`
+  texts.forEach((text) => {
+    const { content, x, y } = text
+    ctx.fillText(content, x, y)
+  })
+}
+
 function renderShape (shape, ctx) {
   ctx.strokeStyle = shape.style.stroke
   ctx.lineWidth = shape.style['stroke-width']
@@ -45,6 +54,9 @@ function renderShape (shape, ctx) {
       break
     case 'polyline':
       renderPolyline(shape, ctx)
+      break
+    case 'multiple-text':
+      renderText(shape, ctx)
       break
     default:
   }
@@ -69,9 +81,13 @@ export default function canvasRender (
     renderShape(shape, ctx)
   })
 
-  // const imgurl = canvas.toDataURL('image/png')
+  let result = ''
+  try {
+    result = Promise.resolve(canvas.toDataURL('image/png'))
+  } catch (err) {
+    result = Promise.reject(new Error(`保存图片失败了: ${err}`))
+  }
+  el.removeChild(canvas)
 
-  // el.removeChild(canvas)
-
-  return ''
+  return result
 }
