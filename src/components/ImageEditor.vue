@@ -186,6 +186,10 @@ export default {
     },
 
     handleEndInputFunc() {
+      if (!this.textState.content) {
+        this.textState.pos = null
+        return
+      }
       const space_reg = /<div>|<\/div><div>|<\/div>/
       const words = this.textState.content.split(space_reg)
       const [x, y] = this.textState.pos
@@ -194,6 +198,7 @@ export default {
         type: 'multiple-text',
         params: {
           texts: words
+            .map(item => item.replace(/&nbsp;/g, ' '))
             .filter(item => item.trim())
             .reduce((acc, item, index) => {
               if (item !== '<br>') {
