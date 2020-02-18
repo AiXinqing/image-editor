@@ -16,6 +16,19 @@
             @drag-move="handleMoveFunc"
             @drag-end="handleEndFunc"
           />
+          <div
+            v-if="isInputShow"
+            ref="textInputRef"
+            :style="{
+              top: textState.pos[1] + 'px',
+              left: textState.pos[0] + 'px',
+              'font-size': size + 'px'
+            }"
+            class="text-input"
+            contenteditable
+            @input="handleInputFunc"
+            @blur="handleEndInputFunc"
+          />
         </div>
       </div>
       <right-controls
@@ -55,6 +68,10 @@ export default {
         color: 'red',
         size: 2
       },
+      textState: {
+        content: '',
+        pos: null
+      },
       preShape: null,
       historyShapes: [],
       recoverShapes: [],
@@ -84,6 +101,14 @@ export default {
         default:
           return this.shapeType
       }
+    },
+
+    textInputEnable() {
+      return this.shapeType === 'text'
+    },
+
+    isInputShow() {
+      return this.textInputEnable && this.textState.pos
     }
   },
 
@@ -131,13 +156,43 @@ export default {
     },
 
     handleEndFunc({ start, current }) {
-      this.addPreShape(start, current)
-      const shape = {
-        ...this.preShape,
-        id: `shape-${Date.now()}`
+      if (this.textInputEnable) {
+        if (!this.textState.content) {
+          this.showInputBox(start)
+        }
+      } else {
+        this.addPreShape(start, current)
+        const shape = {
+          ...this.preShape,
+          id: `shape-${Date.now()}`
+        }
+        this.preShape = null
+        this.historyShapes.push(shape)
       }
-      this.preShape = null
-      this.historyShapes.push(shape)
+    },
+
+    showInputBox(point) {
+      const [x, y] = point
+      this.textState.pos = [x - 5, y - 15]
+      this.$nextTick(() => {
+        this.$refs.textInputRef.focus()
+      })
+    },
+
+    handleInputFunc() {
+      this.textState.content = this.$refs.textInputRef.innerHTML
+    },
+
+    handleEndInputFunc() {
+      const space_reg = /<div>|<\/div><div>|<\/div>/
+      const words = this.textState.content.split(space_reg)
+      words
+        .filter(item => item.trim())
+        .map(item => item === '<br>' ? '' : item)
+      this.textState.pos = null
+      setTimeout(() => {
+        this.textState.content = ''
+      }, 10)
     },
 
     addPreShape(p1, p2) {
@@ -326,6 +381,22 @@ export default {
       display: inline-block;
       width: 16px;
       height: 16px;
+    }
+
+    .text-input {
+      position: absolute;
+      width: 200px;
+      min-height: 30px;
+      line-height: 20px;
+      background-color: white;
+      border: 1px solid red;
+      border-radius: 4px;
+      padding: 4px;
+      outline: none;
+
+      &:focus {
+        outline: none;
+      }
     }
   }
 </style>
