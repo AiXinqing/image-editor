@@ -6,8 +6,7 @@
         :key="action"
         :class="['operation-item', action + '-item']"
         @click="handleOperation(action)"
-      >
-      </div>
+      />
     </div>
   </div>
 </template>
