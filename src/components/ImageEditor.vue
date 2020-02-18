@@ -19,10 +19,7 @@
             :pre-shape="preShape"
             :shapes="historyShapes"
             :viewBox="viewBox"
-            :style="{
-              width: boxSize[0] + 'px',
-              height: boxSize[1] + 'px'
-            }"
+            :scale="scale"
             @drag-move="handleMoveFunc"
             @drag-end="handleEndFunc"
           />
@@ -73,7 +70,7 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       states: {
         shapeType: 'rect',
@@ -94,19 +91,19 @@ export default {
   },
 
   computed: {
-    size() {
+    size () {
       return this.states.size
     },
 
-    shapeType() {
+    shapeType () {
       return this.states.shapeType
     },
 
-    color() {
+    color () {
       return this.states.color
     },
 
-    type() {
+    type () {
       switch (this.shapeType) {
         case 'check':
         case 'times':
@@ -117,22 +114,22 @@ export default {
       }
     },
 
-    textInputEnable() {
+    textInputEnable () {
       return this.shapeType === 'text'
     },
 
-    isInputShow() {
+    isInputShow () {
       return this.textInputEnable && this.textState.pos
     },
 
-    boxSize() {
+    boxSize () {
       if (this.imageSize) {
         return this.imageSize.map(item => item * this.scale)
       }
       return ['auto', 'auto']
     },
 
-    viewBox() {
+    viewBox () {
       if (this.imageSize) {
         return `0 0 ${this.imageSize[0]} ${this.imageSize[1]}`
       }
@@ -141,7 +138,7 @@ export default {
   },
 
   methods: {
-    save() {
+    save () {
       const canvas = document.createElement('canvas')
       const { width, height } = this.$refs.editorBox.getBoundingClientRect()
       canvas.setAttribute('width', width)
@@ -158,12 +155,12 @@ export default {
       this.$el.removeChild(canvas)
     },
 
-    handleImageLoad() {
+    handleImageLoad () {
       const { width, height } = this.$refs.imageRef.getBoundingClientRect()
       this.imageSize = [width, height]
     },
 
-    handleAction(type) {
+    handleAction (type) {
       switch (type) {
         case 'undo':
           this.undoFunc()
@@ -184,11 +181,11 @@ export default {
       }
     },
 
-    handleMoveFunc({ start, current }) {
+    handleMoveFunc ({ start, current }) {
       this.addPreShape(start, current)
     },
 
-    handleEndFunc({ start, current }) {
+    handleEndFunc ({ start, current }) {
       if (this.textInputEnable) {
         if (!this.textState.content) {
           this.showInputBox(start)
@@ -204,7 +201,7 @@ export default {
       }
     },
 
-    showInputBox(point) {
+    showInputBox (point) {
       const [x, y] = point
       this.textState.pos = [x - 5, y - 15]
       this.$nextTick(() => {
@@ -212,17 +209,17 @@ export default {
       })
     },
 
-    handleInputFunc() {
+    handleInputFunc () {
       this.textState.content = this.$refs.textInputRef.innerHTML
     },
 
-    handleEndInputFunc() {
+    handleEndInputFunc () {
       if (!this.textState.content) {
         this.textState.pos = null
         return
       }
-      const space_reg = /<div>|<\/div><div>|<\/div>/
-      const words = this.textState.content.split(space_reg)
+      const spaceReg = /<div>|<\/div><div>|<\/div>/
+      const words = this.textState.content.split(spaceReg)
       const [x, y] = this.textState.pos
       const shape = {
         id: `shape-${Date.now()}`,
@@ -254,7 +251,7 @@ export default {
       }, 10)
     },
 
-    addPreShape(p1, p2) {
+    addPreShape (p1, p2) {
       let Arr = []
       const l = Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2)) || 1
       const sin = (p2[1] - p1[1]) / l
@@ -358,14 +355,14 @@ export default {
       }
     },
 
-    undoFunc() {
+    undoFunc () {
       const last = this.historyShapes.pop()
       if (last) {
         this.recoverShapes.push(last)
       }
     },
 
-    redoFunc() {
+    redoFunc () {
       const last = this.recoverShapes.pop()
       if (last) {
         if (last instanceof Array) {
@@ -376,16 +373,16 @@ export default {
       }
     },
 
-    resetFunc() {
+    resetFunc () {
       const shapes = this.historyShapes.splice(0, this.historyShapes.length)
       this.recoverShapes.push(shapes)
     },
 
-    zoomInFunc() {
+    zoomInFunc () {
       this.scale = this.scale * 1.2
     },
 
-    zoomOutFunc() {
+    zoomOutFunc () {
       this.scale = this.scale / 1.2
     }
   }

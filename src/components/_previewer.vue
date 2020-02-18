@@ -38,10 +38,15 @@ export default {
     shapes: {
       type: Array,
       default: () => []
+    },
+
+    scale: {
+      type: Number,
+      default: 1
     }
   },
 
-  data() {
+  data () {
     return {
       startPoint: [],
       mousemoveFunc: null,
@@ -50,7 +55,7 @@ export default {
   },
 
   computed: {
-    allShapes() {
+    allShapes () {
       if (this.preShape) {
         return [...this.shapes, this.preShape]
       }
@@ -58,7 +63,7 @@ export default {
     }
   },
 
-  created() {
+  created () {
     this.mousemoveFunc = (event) => {
       this.handleMousemove(event)
     }
@@ -68,31 +73,36 @@ export default {
   },
 
   methods: {
-    handleMousedown(event) {
-      const { top, left } = this.$el.getBoundingClientRect()
-      this.startPoint = [event.clientX - left, event.clientY - top]
+    handleMousedown (event) {
+      this.startPoint = this._getPoint(event)
       this.bindMousemove()
       this.bindMouseup()
     },
 
-    handleMousemove(event) {
-      const { top, left } = this.$el.getBoundingClientRect()
+    handleMousemove (event) {
       this.$emit('drag-move', {
         start: this.startPoint,
-        current: [event.clientX - left, event.clientY - top]
+        current: this._getPoint(event)
       })
     },
 
-    handleMouseup(event) {
-      const { top, left } = this.$el.getBoundingClientRect()
+    handleMouseup (event) {
       this.$emit('drag-end', {
         start: this.startPoint,
-        current: [event.clientX - left, event.clientY - top]
+        current: this._getPoint(event)
       })
       this.unbindEvents()
     },
 
-    bindMousemove() {
+    _getPoint (event) {
+      const { top, left } = this.$el.getBoundingClientRect()
+      return [
+        (event.clientX - left) / this.scale,
+        (event.clientY - top) / this.scale
+      ]
+    },
+
+    bindMousemove () {
       document.documentElement.addEventListener(
         'mousemove',
         this.mousemoveFunc,
@@ -100,7 +110,7 @@ export default {
       )
     },
 
-    bindMouseup() {
+    bindMouseup () {
       document.documentElement.addEventListener(
         'mouseup',
         this.mouseupFunc,
@@ -108,7 +118,7 @@ export default {
       )
     },
 
-    unbindEvents() {
+    unbindEvents () {
       document.documentElement.removeEventListener(
         'mousemove',
         this.mousemoveFunc,
