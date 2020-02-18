@@ -4,15 +4,25 @@
       <div class="image-editor__scroll">
         <div
           ref="editorBox"
+          :style="{
+            width: boxSize[0] + 'px',
+            height: boxSize[1] + 'px'
+          }"
           class="image-editor__wrappper"
         >
           <img
             ref="imageRef"
             :src="value"
+            @load="handleImageLoad"
           >
           <Previewer
             :pre-shape="preShape"
             :shapes="historyShapes"
+            :viewBox="viewBox"
+            :style="{
+              width: boxSize[0] + 'px',
+              height: boxSize[1] + 'px'
+            }"
             @drag-move="handleMoveFunc"
             @drag-end="handleEndFunc"
           />
@@ -74,6 +84,8 @@ export default {
         content: '',
         pos: null
       },
+      scale: 1,
+      imageSize: null,
       preShape: null,
       historyShapes: [],
       recoverShapes: [],
@@ -111,6 +123,20 @@ export default {
 
     isInputShow() {
       return this.textInputEnable && this.textState.pos
+    },
+
+    boxSize() {
+      if (this.imageSize) {
+        return this.imageSize.map(item => item * this.scale)
+      }
+      return ['auto', 'auto']
+    },
+
+    viewBox() {
+      if (this.imageSize) {
+        return `0 0 ${this.imageSize[0]} ${this.imageSize[1]}`
+      }
+      return '0 0 300 150'
     }
   },
 
@@ -130,6 +156,11 @@ export default {
       const imgurl = canvas.toDataURL('image/png')
       this.$emit('input', imgurl)
       this.$el.removeChild(canvas)
+    },
+
+    handleImageLoad() {
+      const { width, height } = this.$refs.imageRef.getBoundingClientRect()
+      this.imageSize = [width, height]
     },
 
     handleAction(type) {
@@ -350,9 +381,13 @@ export default {
       this.recoverShapes.push(shapes)
     },
 
-    zoomInFunc() {},
+    zoomInFunc() {
+      this.scale = this.scale * 1.2
+    },
 
-    zoomOutFunc() {}
+    zoomOutFunc() {
+      this.scale = this.scale / 1.2
+    }
   }
 }
 </script>

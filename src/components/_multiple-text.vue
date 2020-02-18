@@ -5,7 +5,7 @@
       :key="index"
       :x="text.x"
       :y="text.y"
-      v-on="$attrs"
+      v-bind="$attrs"
     >
       {{ text.content }}
     </text>
@@ -24,3 +24,9 @@ export default {
   }
 }
 </script>
+
+<style lang="less">
+  text {
+    user-select: none
+  }
+</style>

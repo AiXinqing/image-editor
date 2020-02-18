@@ -3,7 +3,10 @@
     class="editor-preview"
     @mousedown="handleMousedown"
   >
-    <svg xmls="http://www.w3.org/2000/svg">
+    <svg
+      v-bind="$attrs"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <template v-for="shape in allShapes">
         <component
           :is="shape.type"
@@ -23,6 +26,8 @@ export default {
   components: {
     'multiple-text': MultipleText
   },
+
+  inheritAttrs: false,
 
   props: {
     preShape: {
