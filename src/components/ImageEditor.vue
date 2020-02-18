@@ -60,7 +60,7 @@ const TIMES_SIZE = 10
 const ARROW_SIZE = 5
 const LINE_HEIGHT = 20
 
-export default {
+export const ImageEditor = {
   name: 'ImageEditor',
   components: {
     Previewer,
@@ -378,6 +378,8 @@ export default {
     }
   }
 }
+
+export default ImageEditor
 </script>
 
 <style lang="less">
