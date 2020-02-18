@@ -20,56 +20,24 @@
       </div>
       <div class="image-editor__controls--right">右侧控件</div>
     </div>
-    <div class="image-editor__controls image-editor--bottom">
-      <div class="shape-controls__container">
-        <label
-          v-for="shape in allowedShapes"
-          :key="shape"
-        >
-          <input
-            v-model="shapeType"
-            :value="shape"
-            type="radio"
-            name="shapeType"
-          >
-          <span>{{ shape }}</span>
-        </label>
-      </div>
-      <div class="size-controls__container">
-        <button @click="save">保存</button>
-      </div>
-      <div class="color-controls__container">
-        <label
-          v-for="item in allowedColors"
-          :key="item"
-        >
-          <input
-            v-model="color"
-            :value="item"
-            type="radio"
-            name="colorType"
-          >
-          <span
-            class="color-item"
-            :style="{ background: item }"
-          />
-        </label>
-      </div>
-    </div>
+    <bottom-controls
+      v-model="states"
+    />
   </div>
 </template>
 
 <script>
 import Previewer from './_previewer'
+import bottomControls from './bottomEditorControls'
 
-const SHAPES = ['check', 'times', 'text', 'polyline', 'arrow', 'rect', 'ellipse']
-const COLORS = ['red', 'blue', 'green', 'gray', 'white', 'black', 'purple', 'pink']
+const TIMES_SIZE = 10
+const ARROW_SIZE = 5
 
 export default {
   name: 'ImageEditor',
-
   components: {
-    Previewer
+    Previewer,
+    bottomControls
   },
 
   props: {
@@ -78,29 +46,31 @@ export default {
       required: true
     }
   },
-
   data() {
     return {
-      allowedShapes: SHAPES,
-      allowedColors: COLORS,
-      shapeType: 'rect',
-      lineSize: 2,
-      fontSize: 14,
-      color: 'red',
+      states: {
+        shapeType: 'rect',
+        color: 'red',
+        size: 2
+      },
       preShape: null,
       historyShapes: [],
-      recoverShapes: []
+      recoverShapes: [],
+      text_drawing: ''
     }
   },
 
   computed: {
     size() {
-      switch (this.shapeType) {
-        case 'text':
-          return this.fontSize
-        default:
-          return this.lineSize
-      }
+      return this.states.size
+    },
+
+    shapeType() {
+      return this.states.shapeType
+    },
+
+    color() {
+      return this.states.color
     },
 
     type() {
@@ -148,6 +118,11 @@ export default {
     },
 
     addPreShape(p1, p2) {
+      let Arr = []
+      const l = Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2)) || 1
+      const sin = (p2[1] - p1[1]) / l
+      const cos = (p2[0] - p1[0]) / l
+
       this.preShape = this.preShape || {
         type: this.type,
         id: 'preShape',
@@ -159,7 +134,7 @@ export default {
         }
       }
       switch (this.shapeType) {
-        case 'rect':
+        case 'rect': // 矩形
           this.preShape.params = {
             x: Math.min(p1[0], p2[0]),
             y: Math.min(p1[1], p2[1]),
@@ -167,7 +142,7 @@ export default {
             height: Math.abs(p1[1] - p2[1])
           }
           break
-        case 'ellipse':
+        case 'ellipse': // 圆形
           this.preShape.params = {
             cx: (p1[0] + p2[0]) / 2,
             cy: (p1[1] + p2[1]) / 2,
@@ -175,7 +150,7 @@ export default {
             ry: Math.abs(p1[1] - p2[1]) / 2
           }
           break
-        case 'polyline':
+        case 'polyline': // 曲线
           if (this.preShape.params.points) {
             this.preShape.params = {
               points: [...this.preShape.params.points, p2]
@@ -186,6 +161,63 @@ export default {
             }
           }
           break
+        case 'check': // 打勾
+          this.preShape.params = {
+            points: [
+              [p1[0], p1[1] + 8],
+              [p1[0] + 10, p1[1] + 20],
+              [p1[0] + 30, p1[1]]
+            ]
+          }
+          break
+        case 'times': // 错
+          this.preShape.params = {
+            points: [
+              [p1[0] - 10, p1[1] - TIMES_SIZE],
+              [p1[0] + TIMES_SIZE, p1[1] + TIMES_SIZE],
+              p1,
+              [p1[0] + TIMES_SIZE, p1[1] - TIMES_SIZE],
+              [p1[0] - TIMES_SIZE, p1[1] + TIMES_SIZE]
+            ]
+          }
+          break
+        case 'arrow': // 箭头
+          Arr = [
+            [p2[0] - ARROW_SIZE * (Math.sqrt(3) * cos + sin), p2[1] - ARROW_SIZE * (Math.sqrt(3) * sin - cos)],
+            [p2[0] - ARROW_SIZE * (Math.sqrt(3) * cos - sin), p2[1] - ARROW_SIZE * (Math.sqrt(3) * sin + cos)]
+          ]
+          this.preShape.params = {
+            points: [
+              p1,
+              p2,
+              Arr[0],
+              p2,
+              Arr[1],
+              p2
+            ]
+          }
+          this.preShape.style = {
+            fill: 'transparent',
+            stroke: this.color,
+            'stroke-width': this.size,
+            'stroke-linejoin': 'round'
+          }
+          break
+        case 'text': // 文字
+          this.preShape.params = {
+            x: p1[0],
+            y: p1[1],
+            width: '200px',
+            height: '50%',
+            fill: this.color
+          }
+          this.preShape.text = this.text_drawing
+          this.preShape.style = {
+            size: this.size,
+            color: this.color,
+            'font-family': 'auto'
+          }
+          break
       }
     }
   }
@@ -193,6 +225,9 @@ export default {
 </script>
 
 <style lang="less">
+  .image-editor__scroll{
+    background: rgba(0,0,0,0.3);
+  }
   .image-editor {
     width: 100%;
     height: 100%;
