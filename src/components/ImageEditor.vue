@@ -18,17 +18,18 @@
           />
         </div>
       </div>
-      <div class="image-editor__controls--right">右侧控件</div>
+      <right-controls
+        @action-fired="handleAction"
+      />
     </div>
-    <bottom-controls
-      v-model="states"
-    />
+    <bottom-controls v-model="states" />
   </div>
 </template>
 
 <script>
 import Previewer from './_previewer'
 import bottomControls from './_bottom-controls'
+import rightControls from './_right-controls'
 
 const TIMES_SIZE = 10
 const ARROW_SIZE = 5
@@ -37,7 +38,8 @@ export default {
   name: 'ImageEditor',
   components: {
     Previewer,
-    bottomControls
+    bottomControls,
+    rightControls
   },
 
   props: {
@@ -101,6 +103,27 @@ export default {
       const imgurl = canvas.toDataURL('image/png')
       this.$emit('input', imgurl)
       this.$el.removeChild(canvas)
+    },
+
+    handleAction(type) {
+      switch (type) {
+        case 'undo':
+          this.undoFunc()
+          break
+        case 'redo':
+          this.redoFunc()
+          break
+        case 'reset':
+          this.resetFunc()
+          break
+        case 'zoomIn':
+          this.zoomInFunc()
+          break
+        case 'zoomOut':
+          this.zoomOutFunc()
+          break
+        default:
+      }
     },
 
     handleMoveFunc({ start, current }) {
@@ -219,7 +242,34 @@ export default {
           }
           break
       }
-    }
+    },
+
+    undoFunc() {
+      const last = this.historyShapes.pop()
+      if (last) {
+        this.recoverShapes.push(last)
+      }
+    },
+
+    redoFunc() {
+      const last = this.recoverShapes.pop()
+      if (last) {
+        if (last instanceof Array) {
+          this.historyShapes = this.historyShapes.concat(last)
+        } else {
+          this.historyShapes.push(last)
+        }
+      }
+    },
+
+    resetFunc() {
+      const shapes = this.historyShapes.splice(0, this.historyShapes.length)
+      this.recoverShapes.push(shapes)
+    },
+
+    zoomInFunc() {},
+
+    zoomOutFunc() {}
   }
 }
 </script>
