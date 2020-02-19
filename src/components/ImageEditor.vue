@@ -9,16 +9,24 @@
           <div
             ref="editorBox"
             :style="{
-              width: boxSize[0] + 'px',
-              height: boxSize[1] + 'px'
+              width: boxSize[0],
+              height: boxSize[1]
             }"
             class="image-editor__wrapper"
           >
-            <img
-              ref="imageRef"
-              :src="value"
-              @load="handleImageLoad"
+            <div
+              class="image-editor__image-container"
+              :style="{
+                width: boxSize[0],
+                height: boxSize[1]
+              }"
             >
+              <img
+                ref="imageRef"
+                :src="value"
+                @load="handleImageLoad"
+              >
+            </div>
             <Previewer
               :pre-shape="preShape"
               :shapes="historyShapes"
@@ -132,7 +140,7 @@ export const ImageEditor = {
 
     boxSize () {
       if (this.imageSize) {
-        return this.imageSize.map(item => item * this.scale)
+        return this.imageSize.map(item => `${item * this.scale}px`)
       }
       return ['auto', 'auto']
     },
@@ -448,9 +456,13 @@ export default ImageEditor
       position: absolute;
     }
 
+    &__image-container {
+      display: inline-block;
+    }
+
     img {
       display: block;
-      max-width: 100%;
+      width: 100%;
     }
 
     .color-item {
