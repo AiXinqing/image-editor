@@ -184,6 +184,13 @@ export const ImageEditor = {
       )
     },
 
+    reset () {
+      this.scale = 1
+      this.imageSize = null
+      this.historyShapes = []
+      this.recoverShapes = []
+    },
+
     sitFitView () {
       const [iw, ih] = this.imageSize
       const { width, height } = this.$refs.imageBox.getBoundingClientRect()
@@ -198,13 +205,6 @@ export const ImageEditor = {
         this.imageSize = [width, height]
         this.sitFitView()
       })
-    },
-
-    reset () {
-      this.scale = 1
-      this.imageSize = null
-      this.historyShapes = []
-      this.recoverShapes = []
     },
 
     handleAction (type) {
