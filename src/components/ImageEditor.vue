@@ -1,7 +1,10 @@
 <template>
   <div class="image-editor">
     <div class="image-editor--top">
-      <div class="image-editor__scroll">
+      <div
+        ref="imageBox"
+        class="image-editor__scroll"
+      >
         <div class="image-editor__out-wrapper">
           <div
             ref="editorBox"
@@ -14,10 +17,6 @@
             <img
               ref="imageRef"
               :src="value"
-              :style="{
-                width: boxSize[0] + 'px',
-                height: boxSize[1] + 'px'
-              }"
               @load="handleImageLoad"
             >
             <Previewer
@@ -167,9 +166,17 @@ export const ImageEditor = {
       )
     },
 
+    sitFitView () {
+      const [iw, ih] = this.imageSize
+      const { width, height } = this.$refs.imageBox.getBoundingClientRect()
+      const zoom = Math.max(iw / width, ih / height)
+      this.scale = Math.min(this.scale, 1 / zoom)
+    },
+
     handleImageLoad () {
       const { width, height } = this.$refs.imageRef.getBoundingClientRect()
       this.imageSize = [width, height]
+      this.sitFitView()
     },
 
     handleAction (type) {
@@ -434,7 +441,7 @@ export default ImageEditor
 
     img {
       display: block;
-      width: 100%;
+      max-width: 100%;
     }
 
     .color-item {
