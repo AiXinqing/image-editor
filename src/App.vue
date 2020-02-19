@@ -4,6 +4,7 @@
       <ImageEditor
         ref="imageEditor"
         v-model="img.url"
+        scale-size="cover"
         @save-fail="handleError"
       />
     </div>

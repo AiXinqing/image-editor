@@ -33,7 +33,7 @@
               :pre-shape="preShape"
               :shapes="historyShapes"
               :view-box="viewBox"
-              :scale="scale"
+              :scale="scaleState.value"
               @drag-move="handleMoveFunc"
               @drag-end="handleEndFunc"
             />
@@ -43,7 +43,7 @@
               :style="{
                 top: textState.pos[1] + 'px',
                 left: textState.pos[0] + 'px',
-                'font-size': size * scale + 'px',
+                'font-size': size * scaleState.value + 'px',
                 color: color
               }"
               class="text-input"
@@ -55,6 +55,7 @@
         </div>
       </div>
       <right-controls
+        :actions="rightControlsActions"
         @action-fired="handleAction"
       />
     </div>
@@ -87,6 +88,21 @@ export const ImageEditor = {
     value: {
       type: String,
       required: true
+    },
+
+    /*
+     * 决定缩放的限制，前提是图片都是等比缩放（不变形）
+     * contain 表示最大限制为缩放到刚好不溢出（同background-size: contain）
+     * cover 表示最大限制为不能宽高都溢出（同background-size: cover)
+     * disabled 表示禁用缩放
+     * unlimit 表示无限制, 溢出后可滚动查看
+     */
+    scaleSize: {
+      type: String,
+      default: 'contain',
+      validator (val) {
+        return ['cover', 'disabled', 'contain', 'unlimit'].includes(val)
+      }
     }
   },
   data () {
@@ -102,8 +118,12 @@ export const ImageEditor = {
         content: '',
         pos: null
       },
-      // 当前的缩放级别
-      scale: 1,
+      // 缩放状态
+      scaleState: {
+        // 缩放限制，0表示无限制
+        limit: 0,
+        value: 1
+      },
       // 图片初始尺寸
       imageSize: null,
       // 未确定的形状（通常是移动过程中的形状)
@@ -141,6 +161,14 @@ export const ImageEditor = {
       }
     },
 
+    rightControlsActions () {
+      if (this.scaleSize === 'disabled') {
+        return ['undo', 'redo', 'reset']
+      }
+      // undefined 意味着使用所有功能
+      return undefined
+    },
+
     textInputEnable () {
       return this.shapeType === 'text'
     },
@@ -151,7 +179,7 @@ export const ImageEditor = {
 
     boxSize () {
       if (this.imageSize) {
-        return this.imageSize.map(item => `${item * this.scale}px`)
+        return this.imageSize.map(item => `${item * this.scaleState.value}px`)
       }
       return ['auto', 'auto']
     },
@@ -185,7 +213,10 @@ export const ImageEditor = {
     },
 
     reset () {
-      this.scale = 1
+      this.scaleState = {
+        limit: 0,
+        value: 1
+      }
       this.imageSize = null
       this.historyShapes = []
       this.recoverShapes = []
@@ -195,7 +226,24 @@ export const ImageEditor = {
       const [iw, ih] = this.imageSize
       const { width, height } = this.$refs.imageBox.getBoundingClientRect()
       const zoom = Math.max(iw / width, ih / height)
-      this.scale = Math.min(this.scale, 1 / zoom)
+      this.setScale(Math.min(this.scaleState.value, 1 / zoom))
+    },
+
+    updateLimit () {
+      const [iw, ih] = this.imageSize
+      const { width, height } = this.$refs.imageBox.getBoundingClientRect()
+      switch (this.scaleSize) {
+        case 'unlimit':
+          this.scaleState.limit = 0
+          break
+        case 'contain':
+          this.scaleState.limit = 1 / Math.max(iw / width, ih / height)
+          break
+        case 'cover':
+          this.scaleState.limit = 1 / Math.min(iw / width, ih / height)
+          break
+        default:
+      }
     },
 
     handleImageLoad () {
@@ -203,6 +251,7 @@ export const ImageEditor = {
       this.$nextTick(() => {
         const { width, height } = this.$refs.imageRef.getBoundingClientRect()
         this.imageSize = [width, height]
+        this.updateLimit()
         this.sitFitView()
       })
     },
@@ -250,7 +299,7 @@ export const ImageEditor = {
 
     showInputBox (point) {
       const [x, y] = point
-      this.textState.pos = [x * this.scale - 5, y * this.scale - 15]
+      this.textState.pos = [x * this.scaleState.value - 5, y * this.scaleState.value - 15]
       this.$nextTick(() => {
         this.$refs.textInputRef.focus()
       })
@@ -279,8 +328,8 @@ export const ImageEditor = {
               if (item !== '<br>') {
                 acc.push({
                   content: item,
-                  x: (x + 5) / this.scale,
-                  y: (y + index * LINE_HEIGHT + 20) / this.scale
+                  x: (x + 5) / this.scaleState.value,
+                  y: (y + index * LINE_HEIGHT + 20) / this.scaleState.value
                 })
               }
               return acc
@@ -410,12 +459,20 @@ export const ImageEditor = {
       this.recoverShapes.push(shapes)
     },
 
+    setScale (value) {
+      if (this.scaleState.limit === 0) {
+        this.scaleState.value = value
+      } else {
+        this.scaleState.value = Math.min(this.scaleState.limit, value)
+      }
+    },
+
     zoomInFunc () {
-      this.scale = this.scale * 1.2
+      this.setScale(this.scaleState.value * 1.2)
     },
 
     zoomOutFunc () {
-      this.scale = this.scale / 1.2
+      this.setScale(this.scaleState.value / 1.2)
     }
   }
 }
