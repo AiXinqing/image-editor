@@ -163,7 +163,7 @@ export const ImageEditor = {
         this.$refs.imageRef,
         width,
         height,
-        this.$el
+        this.$refs.editorBox
       )
     },
 
