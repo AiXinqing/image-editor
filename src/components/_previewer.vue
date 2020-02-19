@@ -55,7 +55,8 @@ export default {
     return {
       startPoint: [],
       mousemoveFunc: null,
-      mouseupFunc: null
+      mouseupFunc: null,
+      startClientPoint: []
     }
   },
 
@@ -80,6 +81,7 @@ export default {
   methods: {
     handleMousedown (event) {
       this.startPoint = this._getPoint(event)
+      this.startClientPoint = this._getClientPoint(event)
       this.bindMousemove()
       this.bindMouseup()
     },
@@ -87,14 +89,18 @@ export default {
     handleMousemove (event) {
       this.$emit('drag-move', {
         start: this.startPoint,
-        current: this._getPoint(event)
+        current: this._getPoint(event),
+        originStart: this.startClientPoint,
+        originCurrent: this._getClientPoint(event)
       })
     },
 
     handleMouseup (event) {
       this.$emit('drag-end', {
         start: this.startPoint,
-        current: this._getPoint(event)
+        current: this._getPoint(event),
+        originStart: this.startClientPoint,
+        originCurrent: this._getClientPoint(event)
       })
       this.unbindEvents()
     },
@@ -105,6 +111,10 @@ export default {
         (event.clientX - left) / this.scale,
         (event.clientY - top) / this.scale
       ]
+    },
+
+    _getClientPoint (event) {
+      return [event.clientX, event.clientY]
     },
 
     bindMousemove () {

@@ -12,7 +12,7 @@
 </template>
 
 <script>
-const ALLOWED_ACTIONS = ['undo', 'redo', 'reset', 'zoomIn', 'zoomOut']
+const ALLOWED_ACTIONS = ['undo', 'redo', 'reset', 'zoomIn', 'zoomOut', 'drag']
 
 export default {
   props: {
@@ -80,6 +80,11 @@ export default {
       }
 
       &.zoomOut-item {
+        background: url('../assets/zoomOut.png') no-repeat center center;
+        background-size: 70%;
+      }
+
+      &.drag-item {
         background: url('../assets/zoomOut.png') no-repeat center center;
         background-size: 70%;
       }

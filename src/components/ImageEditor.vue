@@ -14,6 +14,7 @@
               left: translateOffset[0] + 'px',
               top: translateOffset[1] + 'px'
             }"
+            :class="boxClass"
             class="image-editor__wrapper"
           >
             <div
@@ -133,7 +134,13 @@ export const ImageEditor = {
       // 被删除，待恢复的图形
       recoverShapes: [],
       // 平移的偏移量
-      translateOffset: [0, 0]
+      translateOffset: [0, 0],
+      // 拖拽状态
+      dragState: {
+        enable: false,
+        draging: false,
+        start: null
+      }
     }
   },
 
@@ -163,7 +170,7 @@ export const ImageEditor = {
 
     rightControlsActions () {
       if (this.scaleSize === 'disabled') {
-        return ['undo', 'redo', 'reset']
+        return ['undo', 'redo', 'reset', 'drag']
       }
       // undefined 意味着使用所有功能
       return undefined
@@ -182,6 +189,13 @@ export const ImageEditor = {
         return this.imageSize.map(item => `${item * this.scaleState.value}px`)
       }
       return ['auto', 'auto']
+    },
+
+    boxClass () {
+      return {
+        dragable: this.dragState.enable,
+        draging: this.dragState.enable && this.dragState.draging
+      }
     },
 
     viewBox () {
@@ -217,9 +231,23 @@ export const ImageEditor = {
         limit: 0,
         value: 1
       }
+      this.dragState = {
+        enable: false,
+        draging: false,
+        start: null
+      }
+      this.translateOffset = [0, 0]
       this.imageSize = null
       this.historyShapes = []
       this.recoverShapes = []
+    },
+
+    translate (deltaX, deltaY) {
+      const [startX, startY] = this.dragState.start
+      this.translateOffset = [
+        startX + deltaX * this.scaleState.value,
+        startY + deltaY * this.scaleState.value
+      ]
     },
 
     sitFitView () {
@@ -244,6 +272,10 @@ export const ImageEditor = {
           break
         default:
       }
+    },
+
+    toggleDragEanble () {
+      this.dragState.enable = !this.dragState.enable
     },
 
     handleImageLoad () {
@@ -273,15 +305,38 @@ export const ImageEditor = {
         case 'zoomOut':
           this.zoomOutFunc()
           break
+        case 'drag':
+          this.toggleDragEanble()
+          break
         default:
       }
     },
 
-    handleMoveFunc ({ start, current }) {
-      this.addPreShape(start, current)
+    handleMoveFunc ({ start, current, originStart, originCurrent }) {
+      if (this.dragState.enable) {
+        if (!this.dragState.draging) {
+          this.dragState.draging = true
+          this.dragState.start = this.translateOffset
+        }
+        this.translate(
+          originCurrent[0] - originStart[0],
+          originCurrent[1] - originStart[1]
+        )
+      } else {
+        this.addPreShape(start, current)
+      }
     },
 
-    handleEndFunc ({ start, current }) {
+    handleEndFunc ({ start, current, originStart, originCurrent }) {
+      if (this.dragState.enable) {
+        this.translate(
+          originCurrent[0] - originStart[0],
+          originCurrent[1] - originStart[1]
+        )
+        this.dragState.draging = false
+        this.dragState.start = null
+        return
+      }
       if (this.textInputEnable) {
         if (!this.textState.content) {
           this.showInputBox(start)
@@ -517,6 +572,14 @@ export default ImageEditor
     &__wrapper {
       margin: auto;
       position: relative;
+
+      &.dragable {
+        cursor: grab;
+      }
+
+      &.draging {
+        cursor: grabbing;
+      }
     }
 
     canvas {
