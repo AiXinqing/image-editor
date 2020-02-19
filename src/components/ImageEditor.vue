@@ -2,45 +2,47 @@
   <div class="image-editor">
     <div class="image-editor--top">
       <div class="image-editor__scroll">
-        <div
-          ref="editorBox"
-          :style="{
-            width: boxSize[0] + 'px',
-            height: boxSize[1] + 'px'
-          }"
-          class="image-editor__wrappper"
-        >
-          <img
-            ref="imageRef"
-            :src="value"
+        <div class="image-editor__out-wrapper">
+          <div
+            ref="editorBox"
             :style="{
               width: boxSize[0] + 'px',
               height: boxSize[1] + 'px'
             }"
-            @load="handleImageLoad"
+            class="image-editor__wrapper"
           >
-          <Previewer
-            :pre-shape="preShape"
-            :shapes="historyShapes"
-            :view-box="viewBox"
-            :scale="scale"
-            @drag-move="handleMoveFunc"
-            @drag-end="handleEndFunc"
-          />
-          <div
-            v-if="isInputShow"
-            ref="textInputRef"
-            :style="{
-              top: textState.pos[1] + 'px',
-              left: textState.pos[0] + 'px',
-              'font-size': size * scale + 'px',
-              color: color
-            }"
-            class="text-input"
-            contenteditable
-            @input="handleInputFunc"
-            @blur="handleEndInputFunc"
-          />
+            <img
+              ref="imageRef"
+              :src="value"
+              :style="{
+                width: boxSize[0] + 'px',
+                height: boxSize[1] + 'px'
+              }"
+              @load="handleImageLoad"
+            >
+            <Previewer
+              :pre-shape="preShape"
+              :shapes="historyShapes"
+              :view-box="viewBox"
+              :scale="scale"
+              @drag-move="handleMoveFunc"
+              @drag-end="handleEndFunc"
+            />
+            <div
+              v-if="isInputShow"
+              ref="textInputRef"
+              :style="{
+                top: textState.pos[1] + 'px',
+                left: textState.pos[0] + 'px',
+                'font-size': size * scale + 'px',
+                color: color
+              }"
+              class="text-input"
+              contenteditable
+              @input="handleInputFunc"
+              @blur="handleEndInputFunc"
+            />
+          </div>
         </div>
       </div>
       <right-controls
@@ -387,40 +389,41 @@ export default ImageEditor
 </script>
 
 <style lang="less">
-  .image-editor__scroll{
-    background: rgba(0,0,0,0.3);
-  }
   .image-editor {
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
 
     &--top {
       display: flex;
       flex-direction: row;
-      flex: 1 0 0;
+      height: calc(100% - 66px);
     }
 
     &--bottom {
       flex-shrink: 0;
+      height: 66px;
     }
 
     &__scroll {
-      flex: 1 0 0;
+      width: calc(100% - 80px);
       overflow: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      writing-mode: vertical-lr;
+      background-color: rgba(0,0,0,0.3);
     }
 
     &__controls--right {
       flex-shrink: 0;
+      width: 80px;
     }
 
-    &__wrappper {
-      display: inline-flex;
+    &__out-wrapper {
+      margin: auto;
+      writing-mode: horizontal-tb;
+      width: 100%;
+    }
+
+    &__wrapper {
+      margin: auto;
       position: relative;
     }
 
