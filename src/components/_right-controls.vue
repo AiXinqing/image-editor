@@ -23,7 +23,7 @@ export default {
   },
 
   methods: {
-    handleOperation(type) {
+    handleOperation (type) {
       this.$emit('action-fired', type)
     }
   }
