@@ -13,12 +13,16 @@
           <img
             ref="imageRef"
             :src="value"
+            :style="{
+              width: boxSize[0] + 'px',
+              height: boxSize[1] + 'px'
+            }"
             @load="handleImageLoad"
           >
           <Previewer
             :pre-shape="preShape"
             :shapes="historyShapes"
-            :viewBox="viewBox"
+            :view-box="viewBox"
             :scale="scale"
             @drag-move="handleMoveFunc"
             @drag-end="handleEndFunc"

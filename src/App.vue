@@ -20,7 +20,7 @@ export default {
   data () {
     return {
       img: {
-        url: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1582088671628&di=c3939fbd443d58c4b2609efa0a511dc2&imgtype=0&src=http%3A%2F%2Fbbs.jooyoo.net%2Fattachment%2FMon_0905%2F24_65548_2835f8eaa933ff6.jpg'
+        url: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2990134288,4193360597&fm=11&gp=0.jpg'
       }
     }
   },

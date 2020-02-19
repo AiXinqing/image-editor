@@ -4,7 +4,7 @@
     @mousedown="handleMousedown"
   >
     <svg
-      v-bind="$attrs"
+      :viewBox="viewBox"
       xmlns="http://www.w3.org/2000/svg"
     >
       <template v-for="shape in allShapes">
@@ -33,6 +33,11 @@ export default {
     preShape: {
       type: Object,
       default: null
+    },
+
+    viewBox: {
+      type: String,
+      default: '0 0 300 150'
     },
 
     shapes: {
