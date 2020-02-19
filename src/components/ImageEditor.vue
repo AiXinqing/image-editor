@@ -174,9 +174,11 @@ export const ImageEditor = {
 
     handleImageLoad () {
       this.reset()
-      const { width, height } = this.$refs.imageRef.getBoundingClientRect()
-      this.imageSize = [width, height]
-      this.sitFitView()
+      this.$nextTick(() => {
+        const { width, height } = this.$refs.imageRef.getBoundingClientRect()
+        this.imageSize = [width, height]
+        this.sitFitView()
+      })
     },
 
     reset () {
