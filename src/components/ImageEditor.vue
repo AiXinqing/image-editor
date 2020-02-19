@@ -10,7 +10,9 @@
             ref="editorBox"
             :style="{
               width: boxSize[0],
-              height: boxSize[1]
+              height: boxSize[1],
+              left: translateOffset[0] + 'px',
+              top: translateOffset[1] + 'px'
             }"
             class="image-editor__wrapper"
           >
@@ -89,20 +91,29 @@ export const ImageEditor = {
   },
   data () {
     return {
+      // 画笔状态
       states: {
         shapeType: 'rect',
         color: 'red',
         size: 2
       },
+      // 文本状态
       textState: {
         content: '',
         pos: null
       },
+      // 当前的缩放级别
       scale: 1,
+      // 图片初始尺寸
       imageSize: null,
+      // 未确定的形状（通常是移动过程中的形状)
       preShape: null,
+      // 已绘制上的图形
       historyShapes: [],
-      recoverShapes: []
+      // 被删除，待恢复的图形
+      recoverShapes: [],
+      // 平移的偏移量
+      translateOffset: [0, 0]
     }
   },
 
