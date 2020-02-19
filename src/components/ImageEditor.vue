@@ -94,8 +94,7 @@ export const ImageEditor = {
       imageSize: null,
       preShape: null,
       historyShapes: [],
-      recoverShapes: [],
-      text_drawing: ''
+      recoverShapes: []
     }
   },
 
@@ -174,9 +173,17 @@ export const ImageEditor = {
     },
 
     handleImageLoad () {
+      this.reset()
       const { width, height } = this.$refs.imageRef.getBoundingClientRect()
       this.imageSize = [width, height]
       this.sitFitView()
+    },
+
+    reset () {
+      this.scale = 1
+      this.imageSize = null
+      this.historyShapes = []
+      this.recoverShapes = []
     },
 
     handleAction (type) {
