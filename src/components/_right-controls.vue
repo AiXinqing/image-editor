@@ -60,33 +60,57 @@ export default {
       }
 
       &.undo-item {
-        background: url('../assets/revoke.png') no-repeat center center;
+        background: url('../assets/undo.png') no-repeat center center;
         background-size: 75%;
+
+        &.disabled {
+          background-image: url('../assets/undo-d.png')
+        }
       }
 
       &.redo-item {
-        background: url('../assets/revoke.png') no-repeat center center;
+        background: url('../assets/redo.png') no-repeat center center;
         background-size: 75%;
+
+        &.disabled {
+          background-image: url('../assets/redo-d.png')
+        }
       }
 
       &.reset-item {
         background: url('../assets/reset.png') no-repeat center center;
         background-size: 70%;
+
+        &.disabled {
+          background-image: url('../assets/reset-d.png')
+        }
       }
 
       &.zoomIn-item {
-        background: url('../assets/amplification.png') no-repeat center center;
+        background: url('../assets/zoomIn.png') no-repeat center center;
         background-size: 70%;
+
+        &.disabled {
+          background-image: url('../assets/zoomIn-d.png')
+        }
       }
 
       &.zoomOut-item {
         background: url('../assets/zoomOut.png') no-repeat center center;
         background-size: 70%;
+
+        &.disabled {
+          background-image: url('../assets/zoomOut-d.png')
+        }
       }
 
       &.drag-item {
-        background: url('../assets/zoomOut.png') no-repeat center center;
+        background: url('../assets/drag.png') no-repeat center center;
         background-size: 70%;
+
+        &.disabled{
+          background-image: url('../assets/drag-d.png');
+        }
       }
     }
   }
