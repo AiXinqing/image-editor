@@ -44,7 +44,7 @@
               :style="{
                 top: textState.pos[1] + 'px',
                 left: textState.pos[0] + 'px',
-                'font-size': size * scaleState.value + 'px',
+                'font-size': size + 'px',
                 color: color
               }"
               class="text-input"
@@ -74,6 +74,7 @@ import rightControls from './_right-controls'
 import canvasRender from './_canvas-render'
 
 const TIMES_SIZE = 10
+const CHECK_SIZE = 30
 const ARROW_SIZE = 5
 const LINE_HEIGHT = 20
 
@@ -391,7 +392,7 @@ export const ImageEditor = {
             }, [])
         },
         style: {
-          'font-size': this.size,
+          'font-size': this.size / this.scaleState.value,
           fill: this.color
         }
       }
@@ -407,7 +408,9 @@ export const ImageEditor = {
       const l = Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2)) || 1
       const sin = (p2[1] - p1[1]) / l
       const cos = (p2[0] - p1[0]) / l
-
+      const times_size = TIMES_SIZE / this.scaleState.value
+      const check_size = CHECK_SIZE / this.scaleState.value
+      const arrow_size = l / 20 + ARROW_SIZE
       this.preShape = this.preShape || {
         type: this.type,
         id: 'preShape',
@@ -449,27 +452,27 @@ export const ImageEditor = {
         case 'check': // 打勾
           this.preShape.params = {
             points: [
-              [p1[0], p1[1] + 8],
-              [p1[0] + 10, p1[1] + 20],
-              [p1[0] + 30, p1[1]]
+              [p1[0], p1[1] + 0.4 * 2 / 3 * check_size],
+              [p1[0] + 1 / 3 * check_size, p1[1] + 2 / 3 * check_size],
+              [p1[0] + check_size, p1[1]]
             ]
           }
           break
         case 'times': // 错
           this.preShape.params = {
             points: [
-              [p1[0] - 10, p1[1] - TIMES_SIZE],
-              [p1[0] + TIMES_SIZE, p1[1] + TIMES_SIZE],
+              [p1[0] - times_size, p1[1] - times_size],
+              [p1[0] + times_size, p1[1] + times_size],
               p1,
-              [p1[0] + TIMES_SIZE, p1[1] - TIMES_SIZE],
-              [p1[0] - TIMES_SIZE, p1[1] + TIMES_SIZE]
+              [p1[0] + times_size, p1[1] - times_size],
+              [p1[0] - times_size, p1[1] + times_size]
             ]
           }
           break
         case 'arrow': // 箭头
           Arr = [
-            [p2[0] - ARROW_SIZE * (Math.sqrt(3) * cos + sin), p2[1] - ARROW_SIZE * (Math.sqrt(3) * sin - cos)],
-            [p2[0] - ARROW_SIZE * (Math.sqrt(3) * cos - sin), p2[1] - ARROW_SIZE * (Math.sqrt(3) * sin + cos)]
+            [p2[0] - arrow_size * (Math.sqrt(3) * cos + sin), p2[1] - arrow_size * (Math.sqrt(3) * sin - cos)],
+            [p2[0] - arrow_size * (Math.sqrt(3) * cos - sin), p2[1] - arrow_size * (Math.sqrt(3) * sin + cos)]
           ]
           this.preShape.params = {
             points: [
