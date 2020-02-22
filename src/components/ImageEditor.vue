@@ -57,10 +57,15 @@
       </div>
       <right-controls
         :actions="rightControlsActions"
+        :history-shapes="historyShapes"
+        :redo-shapes="recoverShapes"
+        :zoom-in-able="zoomInAble"
+        :drag-able="dragState.enable"
         @action-fired="handleAction"
       />
     </div>
     <bottom-controls
+      v-show="!dragState.enable"
       v-model="states"
       @save-image="save"
     />
@@ -204,6 +209,11 @@ export const ImageEditor = {
         return `0 0 ${this.imageSize[0]} ${this.imageSize[1]}`
       }
       return '0 0 300 150'
+    },
+
+    zoomInAble () {
+      return this.scaleState.limit === 0 ||
+        this.scaleState.limit > this.scaleState.value
     }
   },
 

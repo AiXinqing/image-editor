@@ -4,7 +4,7 @@
       <div
         v-for="action in actions"
         :key="action"
-        :class="['operation-item', action + '-item']"
+        :class="getActionClass(action)"
         @click="handleOperation(action)"
       />
     </div>
@@ -19,12 +19,56 @@ export default {
     actions: {
       type: Array,
       default: () => ALLOWED_ACTIONS
+    },
+
+    historyShapes: {
+      type: Array,
+      default: () => []
+    },
+
+    redoShapes: {
+      type: Array,
+      default: () => []
+    },
+
+    zoomInAble: {
+      type: Boolean,
+      default: true
+    },
+
+    dragAble: {
+      type: Boolean,
+      default: false
     }
   },
 
   methods: {
     handleOperation (type) {
       this.$emit('action-fired', type)
+    },
+
+    getActionClass (action) {
+      return {
+        'operation-item': true,
+        [`${action}-item`]: true,
+        disabled: this.getActionState(action)
+      }
+    },
+
+    getActionState (action) {
+      switch (action) {
+        case 'undo':
+        case 'reset':
+          return !this.historyShapes.length
+        case 'redo':
+          return !this.redoShapes.length
+        case 'zoomIn':
+          return !this.zoomInAble
+        case 'drag':
+          return !this.dragAble
+        default:
+          return false
+      }
     }
   }
 }
