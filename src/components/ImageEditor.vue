@@ -262,6 +262,7 @@ export const ImageEditor = {
     },
 
     sitFitView () {
+      if (this.scaleSize) return
       const [iw, ih] = this.imageSize
       const { width, height } = this.$refs.imageBox.getBoundingClientRect()
       const zoom = Math.max(iw / width, ih / height)
