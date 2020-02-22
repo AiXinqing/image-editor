@@ -27,6 +27,7 @@
               <img
                 ref="imageRef"
                 :src="value"
+                crossorigin="anonymous"
                 @load="handleImageLoad"
               >
             </div>
