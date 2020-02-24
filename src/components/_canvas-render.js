@@ -75,7 +75,6 @@ export default function canvasRender (
   canvas.setAttribute('height', height)
   el.appendChild(canvas)
   const ctx = canvas.getContext('2d')
-
   ctx.drawImage(img, 0, 0, width, height)
   shapes.forEach((shape) => {
     renderShape(shape, ctx)

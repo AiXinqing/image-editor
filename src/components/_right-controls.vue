@@ -12,7 +12,7 @@
 </template>
 
 <script>
-const ALLOWED_ACTIONS = ['undo', 'redo', 'reset', 'zoomIn', 'zoomOut', 'drag']
+const ALLOWED_ACTIONS = ['rotate', 'undo', 'redo', 'reset', 'zoomIn', 'zoomOut', 'drag']
 
 export default {
   props: {
@@ -101,6 +101,15 @@ export default {
 
       &:first-child {
         margin-top: 0;
+      }
+
+      &.rotate-item {
+        background: url('../assets/rorate.png') no-repeat center center;
+        background-size: 75%;
+
+        &.disabled {
+          background-image: url('../assets/rorate.png')
+        }
       }
 
       &.undo-item {

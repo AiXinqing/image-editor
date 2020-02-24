@@ -26,8 +26,7 @@
             >
               <img
                 ref="imageRef"
-                :src="value"
-                crossorigin="anonymous"
+                :src="url"
                 @load="handleImageLoad"
               >
             </div>
@@ -78,6 +77,7 @@ import Previewer from './_previewer'
 import bottomControls from './_bottom-controls'
 import rightControls from './_right-controls'
 import canvasRender from './_canvas-render'
+import canvasRotate from './_canvas-rotate'
 
 const TIMES_SIZE = 10
 const CHECK_SIZE = 30
@@ -147,7 +147,9 @@ export const ImageEditor = {
         enable: false,
         draging: false,
         start: null
-      }
+      },
+      // url
+      url: ''
     }
   },
 
@@ -217,10 +219,13 @@ export const ImageEditor = {
         this.scaleState.limit > this.scaleState.value
     }
   },
-
+  mounted () {
+    this.url = this.value
+  },
   methods: {
     save () {
       this.getImageData().then((url) => {
+        this.url = url
         this.$emit('input', url)
       }).catch((err) => {
         this.$emit('save-fail', err)
@@ -320,6 +325,9 @@ export const ImageEditor = {
           break
         case 'drag':
           this.toggleDragEanble()
+          break
+        case 'rotate':
+          this.transformFunc()
           break
         default:
       }
@@ -535,6 +543,30 @@ export const ImageEditor = {
       } else {
         this.scaleState.value = Math.min(this.scaleState.limit, value)
       }
+    },
+
+    transformFunc () {
+      // const that = this
+      this.getImageData().then((url) => {
+        this.url = url
+        this.$nextTick(function () {
+          this.$nextTick(function () {
+            const [width, height] = this.imageSize
+            canvasRotate(
+              this.$refs.imageRef,
+              width,
+              height,
+              this.$refs.editorBox
+            ).then(res => {
+              this.url = res
+            }).catch(err => {
+              window.console.log(err)
+            })
+          })
+        })
+      }).catch((err) => {
+        this.$emit('save-fail', err)
+      })
     },
 
     zoomInFunc () {
