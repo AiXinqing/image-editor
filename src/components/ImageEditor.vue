@@ -257,8 +257,8 @@ export const ImageEditor = {
     translate (deltaX, deltaY) {
       const [startX, startY] = this.dragState.start
       this.translateOffset = [
-        startX + deltaX * this.scaleState.value,
-        startY + deltaY * this.scaleState.value
+        startX + deltaX,
+        startY + deltaY
       ]
     },
 
