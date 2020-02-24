@@ -464,9 +464,9 @@ export const ImageEditor = {
         case 'check': // 打勾
           this.preShape.params = {
             points: [
-              [p1[0], p1[1] + 0.4 * 2 / 3 * check_size],
-              [p1[0] + 1 / 3 * check_size, p1[1] + 2 / 3 * check_size],
-              [p1[0] + check_size, p1[1]]
+              [p1[0] - check_size / 2, p1[1] - 0.1 * 2 / 3 * check_size],
+              [p1[0] - 1 / 6 * check_size, p1[1] + 1 / 3 * check_size],
+              [p1[0] + check_size / 2, p1[1] - 1 / 3 * check_size]
             ]
           }
           break
