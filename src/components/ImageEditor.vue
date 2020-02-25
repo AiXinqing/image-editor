@@ -534,7 +534,6 @@ export const ImageEditor = {
 
     undoFunc () {
       const last = this.historyShapes.pop()
-      if (!last) return
       if (last.type === 'rotate') {
         this.undoRotate(last)
       }
@@ -543,15 +542,13 @@ export const ImageEditor = {
 
     redoFunc () {
       const last = this.recoverShapes.pop()
-      if (last) {
-        if (last instanceof Array) {
-          this.historyShapes = this.historyShapes.concat(last)
+      if (last instanceof Array) {
+        this.historyShapes = this.historyShapes.concat(last)
+      } else {
+        if (last.type === 'rotate') {
+          this.addRotateOperate(last)
         } else {
-          if (last.type === 'rotate') {
-            this.addRotateOperate(last)
-          } else {
-            this.historyShapes.push(last)
-          }
+          this.historyShapes.push(last)
         }
       }
     },
