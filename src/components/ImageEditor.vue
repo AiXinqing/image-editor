@@ -220,9 +220,16 @@ export const ImageEditor = {
         this.scaleState.limit > this.scaleState.value
     }
   },
-  mounted () {
-    this.url = this.value
+
+  watch: {
+    value: {
+      immediate: true,
+      handler () {
+        this.url = this.value
+      }
+    }
   },
+
   methods: {
     save () {
       this.getImageData().then((url) => {
