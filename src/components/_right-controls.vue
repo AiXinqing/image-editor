@@ -99,6 +99,10 @@ export default {
       width:30px;
       height: 34px;
 
+      &.disabled {
+        cursor: not-allowed;
+      }
+
       &:first-child {
         margin-top: 0;
       }
@@ -106,10 +110,6 @@ export default {
       &.rotate-item {
         background: url('../assets/rorate.png') no-repeat center center;
         background-size: 75%;
-
-        &.disabled {
-          background-image: url('../assets/rorate.png')
-        }
       }
 
       &.undo-item {

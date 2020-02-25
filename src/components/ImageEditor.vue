@@ -180,7 +180,7 @@ export const ImageEditor = {
 
     rightControlsActions () {
       if (this.scaleSize === 'disabled') {
-        return ['undo', 'redo', 'reset', 'drag']
+        return ['rotate', 'undo', 'redo', 'reset', 'drag']
       }
       // undefined 意味着使用所有功能
       return undefined
