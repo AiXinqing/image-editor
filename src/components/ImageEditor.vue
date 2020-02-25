@@ -77,8 +77,7 @@
 import Previewer from './_previewer'
 import bottomControls from './_bottom-controls'
 import rightControls from './_right-controls'
-import canvasRender from './_canvas-render'
-import canvasRotate from './_canvas-rotate'
+import canvasRender, { saveRotateImage } from './_canvas-render'
 
 const TIMES_SIZE = 10
 const CHECK_SIZE = 30
@@ -149,6 +148,8 @@ export const ImageEditor = {
         draging: false,
         start: null
       },
+      // 旋转状态
+      rotateHistories: [],
       // url
       url: ''
     }
@@ -225,7 +226,8 @@ export const ImageEditor = {
     value: {
       immediate: true,
       handler () {
-        this.url = this.value
+        this.reset()
+        this.updateImg(this.value)
       }
     }
   },
@@ -233,7 +235,6 @@ export const ImageEditor = {
   methods: {
     save () {
       this.getImageData().then((url) => {
-        this.url = url
         this.$emit('input', url)
       }).catch((err) => {
         this.$emit('save-fail', err)
@@ -252,19 +253,28 @@ export const ImageEditor = {
     },
 
     reset () {
-      this.scaleState = {
-        limit: 0,
-        value: 1
-      }
       this.dragState = {
         enable: false,
         draging: false,
         start: null
       }
-      this.translateOffset = [0, 0]
-      this.imageSize = null
       this.historyShapes = []
       this.recoverShapes = []
+      this.rotateHistories = []
+    },
+
+    updateImg (url) {
+      this.beforeUpdateImg()
+      this.url = url
+    },
+
+    beforeUpdateImg () {
+      this.scaleState = {
+        limit: 0,
+        value: 1
+      }
+      this.translateOffset = [0, 0]
+      this.imageSize = null
     },
 
     translate (deltaX, deltaY) {
@@ -305,13 +315,10 @@ export const ImageEditor = {
     },
 
     handleImageLoad () {
-      this.reset()
-      this.$nextTick(() => {
-        const { width, height } = this.$refs.imageRef.getBoundingClientRect()
-        this.imageSize = [width, height]
-        this.updateLimit()
-        this.sitFitView()
-      })
+      const { width, height } = this.$refs.imageRef.getBoundingClientRect()
+      this.imageSize = [width, height]
+      this.updateLimit()
+      this.sitFitView()
     },
 
     handleAction (type) {
@@ -443,6 +450,7 @@ export const ImageEditor = {
         type: this.type,
         id: 'preShape',
         params: {},
+        rotateCount: this.rotateHistories.length,
         style: {
           fill: 'transparent',
           stroke: this.color,
@@ -524,9 +532,11 @@ export const ImageEditor = {
 
     undoFunc () {
       const last = this.historyShapes.pop()
-      if (last) {
-        this.recoverShapes.push(last)
+      if (!last) return
+      if (last.type === 'rotate') {
+        this.undoRotate(last)
       }
+      this.recoverShapes.push(last)
     },
 
     redoFunc () {
@@ -535,7 +545,11 @@ export const ImageEditor = {
         if (last instanceof Array) {
           this.historyShapes = this.historyShapes.concat(last)
         } else {
-          this.historyShapes.push(last)
+          if (last.type === 'rotate') {
+            this.addRotateOperate(last)
+          } else {
+            this.historyShapes.push(last)
+          }
         }
       }
     },
@@ -553,27 +567,35 @@ export const ImageEditor = {
       }
     },
 
+    addRotateOperate (state) {
+      this.rotateHistories.push(state)
+      this.historyShapes = [state]
+      this.updateImg(state.params.img)
+    },
+
+    undoRotate (state) {
+      this.rotateHistories.pop()
+      this.historyShapes = state.params.shapes
+      this.updateImg(state.params.originImg)
+    },
+
     transformFunc () {
-      // const that = this
+      const [width, height] = this.imageSize
       this.getImageData().then((url) => {
-        this.url = url
-        this.$nextTick(function () {
-          this.$nextTick(function () {
-            const [width, height] = this.imageSize
-            canvasRotate(
-              this.$refs.imageRef,
-              width,
-              height,
-              this.$refs.editorBox
-            ).then(res => {
-              this.url = res
-            }).catch(err => {
-              window.console.log(err)
+        saveRotateImage(url, width, height, this.$refs.editorBox)
+          .then((data) => {
+            // 存储旋转前的状态
+            this.addRotateOperate({
+              id: `operate-${Date.now()}`,
+              type: 'rotate',
+              params: {
+                originImg: this.url,
+                img: data,
+                shapes: this.historyShapes
+              },
+              style: {}
             })
           })
-        })
-      }).catch((err) => {
-        this.$emit('save-fail', err)
       })
     },
 
@@ -640,6 +662,9 @@ export default ImageEditor
     canvas {
       visibility: visible;
       position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
     }
 
     &__image-container {
