@@ -570,14 +570,12 @@ export const ImageEditor = {
     },
 
     addRotateOperate (state) {
-      this.rotateHistories.push(state)
       this.historyShapes = [state]
       this.updateImg(state.params.img)
     },
 
     undoRotate (state) {
-      this.rotateHistories.pop()
-      this.historyShapes = state.params.shapes
+      this.historyShapes = [...state.params.shapes]
       this.updateImg(state.params.originImg)
     },
 
@@ -593,7 +591,7 @@ export const ImageEditor = {
               params: {
                 originImg: this.url,
                 img: data,
-                shapes: this.historyShapes
+                shapes: [...this.historyShapes]
               },
               style: {}
             })
