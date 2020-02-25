@@ -62,10 +62,11 @@ export default {
 
   computed: {
     allShapes () {
+      const shapes = this.shapes.filter(item => item.type !== 'rotate')
       if (this.preShape) {
-        return [...this.shapes, this.preShape]
+        return [...shapes, this.preShape]
       }
-      return this.shapes
+      return shapes
     }
   },
 

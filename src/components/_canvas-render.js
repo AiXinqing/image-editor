@@ -1,3 +1,5 @@
+import canvasRotate from './_canvas-rotate'
+
 function renderRect (rect, ctx) {
   const { x, y, width, height } = rect.params
   ctx.strokeRect(x, y, width, height)
@@ -62,6 +64,42 @@ function renderShape (shape, ctx) {
   }
 }
 
+export function saveRotateImage (
+  url,
+  width,
+  height,
+  el
+) {
+  const root = el || document.body
+  const img = document.createElement('img')
+  img.src = url
+  img.style.width = `${width}px`
+  img.style.height = `${height}px`
+  img.style.visibility = 'visible'
+  img.style.position = 'absolute'
+  img.style.top = `-${height}px`
+  img.style.left = `-${width}px`
+  document.body.appendChild(img)
+  return new Promise((resolve, reject) => {
+    img.onload = () => {
+      canvasRotate(img, width, height, root)
+        .then((data) => {
+          resolve(data)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+        .finally(() => {
+          document.body.removeChild(img)
+        })
+    }
+    img.onerror = (err) => {
+      reject(err)
+      document.body.removeChild(img)
+    }
+  })
+}
+
 export default function canvasRender (
   shapes,
   img,
@@ -75,7 +113,6 @@ export default function canvasRender (
   canvas.setAttribute('height', height)
   el.appendChild(canvas)
   const ctx = canvas.getContext('2d')
-
   ctx.drawImage(img, 0, 0, width, height)
   shapes.forEach((shape) => {
     renderShape(shape, ctx)

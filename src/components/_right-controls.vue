@@ -12,7 +12,7 @@
 </template>
 
 <script>
-const ALLOWED_ACTIONS = ['undo', 'redo', 'reset', 'zoomIn', 'zoomOut', 'drag']
+const ALLOWED_ACTIONS = ['rotate', 'undo', 'redo', 'reset', 'zoomIn', 'zoomOut', 'drag']
 
 export default {
   props: {
@@ -44,6 +44,7 @@ export default {
 
   methods: {
     handleOperation (type) {
+      if (this.getActionState(type)) return
       this.$emit('action-fired', type)
     },
 
@@ -99,8 +100,17 @@ export default {
       width:30px;
       height: 34px;
 
+      &.disabled {
+        cursor: not-allowed;
+      }
+
       &:first-child {
         margin-top: 0;
+      }
+
+      &.rotate-item {
+        background: url('../assets/rorate.png') no-repeat center center;
+        background-size: 75%;
       }
 
       &.undo-item {

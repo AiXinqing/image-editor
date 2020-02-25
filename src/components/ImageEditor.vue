@@ -26,8 +26,8 @@
             >
               <img
                 ref="imageRef"
-                :src="value"
-                crossorigin="anonymous"
+                :src="imgUrl"
+                crossOrigin="anonymous"
                 @load="handleImageLoad"
               >
             </div>
@@ -77,7 +77,7 @@
 import Previewer from './_previewer'
 import bottomControls from './_bottom-controls'
 import rightControls from './_right-controls'
-import canvasRender from './_canvas-render'
+import canvasRender, { saveRotateImage } from './_canvas-render'
 
 const TIMES_SIZE = 10
 const CHECK_SIZE = 30
@@ -177,7 +177,7 @@ export const ImageEditor = {
 
     rightControlsActions () {
       if (this.scaleSize === 'disabled') {
-        return ['undo', 'redo', 'reset', 'drag']
+        return ['rotate', 'undo', 'redo', 'reset', 'drag']
       }
       // undefined 意味着使用所有功能
       return undefined
@@ -215,6 +215,24 @@ export const ImageEditor = {
     zoomInAble () {
       return this.scaleState.limit === 0 ||
         this.scaleState.limit > this.scaleState.value
+    },
+
+    imgUrl () {
+      const shapes = this.historyShapes
+      let img_url = this.value
+      if (shapes.length && shapes[0].type === 'rotate') {
+        img_url = shapes[0].params.img
+      }
+      return img_url
+    }
+  },
+
+  watch: {
+    value: {
+      immediate: true,
+      handler () {
+        this.reset()
+      }
     }
   },
 
@@ -239,19 +257,23 @@ export const ImageEditor = {
     },
 
     reset () {
-      this.scaleState = {
-        limit: 0,
-        value: 1
-      }
       this.dragState = {
         enable: false,
         draging: false,
         start: null
       }
-      this.translateOffset = [0, 0]
-      this.imageSize = null
       this.historyShapes = []
       this.recoverShapes = []
+      this.rotateHistories = []
+    },
+
+    afterImageUpdate () {
+      this.scaleState = {
+        limit: 0,
+        value: 1
+      }
+      this.translateOffset = [0, 0]
+      this.imageSize = null
     },
 
     translate (deltaX, deltaY) {
@@ -263,7 +285,7 @@ export const ImageEditor = {
     },
 
     sitFitView () {
-      if (this.scaleSize) return
+      if (this.scaleSize === 'disabled') return
       const [iw, ih] = this.imageSize
       const { width, height } = this.$refs.imageBox.getBoundingClientRect()
       const zoom = Math.max(iw / width, ih / height)
@@ -292,7 +314,7 @@ export const ImageEditor = {
     },
 
     handleImageLoad () {
-      this.reset()
+      this.afterImageUpdate()
       this.$nextTick(() => {
         const { width, height } = this.$refs.imageRef.getBoundingClientRect()
         this.imageSize = [width, height]
@@ -320,6 +342,9 @@ export const ImageEditor = {
           break
         case 'drag':
           this.toggleDragEanble()
+          break
+        case 'rotate':
+          this.transformFunc()
           break
         default:
       }
@@ -508,16 +533,19 @@ export const ImageEditor = {
 
     undoFunc () {
       const last = this.historyShapes.pop()
-      if (last) {
-        this.recoverShapes.push(last)
+      if (last.type === 'rotate') {
+        this.undoRotate(last)
       }
+      this.recoverShapes.push(last)
     },
 
     redoFunc () {
       const last = this.recoverShapes.pop()
-      if (last) {
-        if (last instanceof Array) {
-          this.historyShapes = this.historyShapes.concat(last)
+      if (last instanceof Array) {
+        this.historyShapes = this.historyShapes.concat(last)
+      } else {
+        if (last.type === 'rotate') {
+          this.addRotateOperate(last)
         } else {
           this.historyShapes.push(last)
         }
@@ -534,6 +562,43 @@ export const ImageEditor = {
         this.scaleState.value = value
       } else {
         this.scaleState.value = Math.min(this.scaleState.limit, value)
+      }
+    },
+
+    addRotateOperate (state) {
+      this.historyShapes = [state]
+    },
+
+    undoRotate (state) {
+      this.historyShapes = [...state.params.shapes]
+    },
+
+    transformFunc () {
+      const [width, height] = this.imageSize
+      this.getImageData().then((url) => {
+        saveRotateImage(url, width, height, this.$refs.editorBox)
+          .then((data) => {
+            this.removeExpiredShapes()
+            // 存储旋转前的状态
+            this.addRotateOperate({
+              id: `operate-${Date.now()}`,
+              type: 'rotate',
+              params: {
+                img: data,
+                shapes: [...this.historyShapes]
+              },
+              style: {}
+            })
+          })
+      })
+    },
+
+    // 移除待恢复队列里面受旋转影响而导致坐标失效的形状
+    removeExpiredShapes () {
+      let last = this.recoverShapes[this.recoverShapes.length - 1]
+      while (last && last.type !== 'rotate') {
+        this.recoverShapes.pop()
+        last = this.recoverShapes[this.recoverShapes.length - 1]
       }
     },
 
@@ -600,6 +665,9 @@ export default ImageEditor
     canvas {
       visibility: visible;
       position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
     }
 
     &__image-container {
