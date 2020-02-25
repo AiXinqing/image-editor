@@ -44,6 +44,7 @@ export default {
 
   methods: {
     handleOperation (type) {
+      if (this.getActionState(type)) return
       this.$emit('action-fired', type)
     },
 

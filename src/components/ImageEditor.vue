@@ -582,6 +582,7 @@ export const ImageEditor = {
       this.getImageData().then((url) => {
         saveRotateImage(url, width, height, this.$refs.editorBox)
           .then((data) => {
+            this.removeExpiredShapes()
             // 存储旋转前的状态
             this.addRotateOperate({
               id: `operate-${Date.now()}`,
@@ -594,6 +595,15 @@ export const ImageEditor = {
             })
           })
       })
+    },
+
+    // 移除待恢复队列里面受旋转影响而导致坐标失效的形状
+    removeExpiredShapes () {
+      let last = this.recoverShapes[this.recoverShapes.length - 1]
+      while (last && last.type !== 'rotate') {
+        this.recoverShapes.pop()
+        last = this.recoverShapes[this.recoverShapes.length - 1]
+      }
     },
 
     zoomInFunc () {
