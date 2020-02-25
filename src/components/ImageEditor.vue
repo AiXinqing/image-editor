@@ -27,6 +27,7 @@
               <img
                 ref="imageRef"
                 :src="url"
+                crossOrigin="anonymous"
                 @load="handleImageLoad"
               >
             </div>
@@ -268,7 +269,7 @@ export const ImageEditor = {
     },
 
     sitFitView () {
-      if (this.scaleSize) return
+      if (this.scaleSize === 'disabled') return
       const [iw, ih] = this.imageSize
       const { width, height } = this.$refs.imageBox.getBoundingClientRect()
       const zoom = Math.max(iw / width, ih / height)
