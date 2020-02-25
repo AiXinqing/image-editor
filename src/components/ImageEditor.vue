@@ -26,7 +26,7 @@
             >
               <img
                 ref="imageRef"
-                :src="url"
+                :src="imgUrl"
                 crossOrigin="anonymous"
                 @load="handleImageLoad"
               >
@@ -147,11 +147,7 @@ export const ImageEditor = {
         enable: false,
         draging: false,
         start: null
-      },
-      // 旋转状态
-      rotateHistories: [],
-      // url
-      url: ''
+      }
     }
   },
 
@@ -219,6 +215,15 @@ export const ImageEditor = {
     zoomInAble () {
       return this.scaleState.limit === 0 ||
         this.scaleState.limit > this.scaleState.value
+    },
+
+    imgUrl () {
+      const shapes = this.historyShapes
+      let img_url = this.value
+      if (shapes.length && shapes[0].type === 'rotate') {
+        img_url = shapes[0].params.img
+      }
+      return img_url
     }
   },
 
@@ -227,7 +232,6 @@ export const ImageEditor = {
       immediate: true,
       handler () {
         this.reset()
-        this.updateImg(this.value)
       }
     }
   },
@@ -261,10 +265,6 @@ export const ImageEditor = {
       this.historyShapes = []
       this.recoverShapes = []
       this.rotateHistories = []
-    },
-
-    updateImg (url) {
-      this.url = url
     },
 
     afterImageUpdate () {
@@ -571,12 +571,10 @@ export const ImageEditor = {
 
     addRotateOperate (state) {
       this.historyShapes = [state]
-      this.updateImg(state.params.img)
     },
 
     undoRotate (state) {
       this.historyShapes = [...state.params.shapes]
-      this.updateImg(state.params.originImg)
     },
 
     transformFunc () {
@@ -589,7 +587,6 @@ export const ImageEditor = {
               id: `operate-${Date.now()}`,
               type: 'rotate',
               params: {
-                originImg: this.url,
                 img: data,
                 shapes: [...this.historyShapes]
               },
