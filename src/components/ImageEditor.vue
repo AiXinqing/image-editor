@@ -264,11 +264,10 @@ export const ImageEditor = {
     },
 
     updateImg (url) {
-      this.beforeUpdateImg()
       this.url = url
     },
 
-    beforeUpdateImg () {
+    afterImageUpdate () {
       this.scaleState = {
         limit: 0,
         value: 1
@@ -315,10 +314,13 @@ export const ImageEditor = {
     },
 
     handleImageLoad () {
-      const { width, height } = this.$refs.imageRef.getBoundingClientRect()
-      this.imageSize = [width, height]
-      this.updateLimit()
-      this.sitFitView()
+      this.afterImageUpdate()
+      this.$nextTick(() => {
+        const { width, height } = this.$refs.imageRef.getBoundingClientRect()
+        this.imageSize = [width, height]
+        this.updateLimit()
+        this.sitFitView()
+      })
     },
 
     handleAction (type) {
