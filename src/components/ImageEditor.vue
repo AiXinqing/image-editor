@@ -452,7 +452,6 @@ export const ImageEditor = {
         type: this.type,
         id: 'preShape',
         params: {},
-        rotateCount: this.rotateHistories.length,
         style: {
           fill: 'transparent',
           stroke: this.color,
